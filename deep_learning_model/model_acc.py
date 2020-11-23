@@ -9,10 +9,10 @@ from sklearn.metrics import confusion_matrix
 from tensorflow.keras import layers
 from tensorflow.keras import models
 
-WINDOW_SIZE = 32
+WINDOW_SIZE = 64
 SAMPLE_RATE = 500
-SAMPLE_NUM = 400
-PAD_LENGTH = 17
+SAMPLE_NUM = 300
+PAD_LENGTH = 11
 
 util = Util(WINDOW_SIZE, SAMPLE_RATE, SAMPLE_NUM)
 wave_raw, label, time = read_acc_file('accelerometer_data')
@@ -30,11 +30,13 @@ spec = np.empty(shape=(n_data, spec_length, time_length, 3))
 spec[:, :, :, 0] = spec_x
 spec[:, :, :, 1] = spec_y
 spec[:, :, :, 2] = spec_z
-spec = spec[:, 1:, :, :]
+spec = spec[:, 2:, :, :]
 n_data, spec_length, time_length, channel_num = spec.shape
+spec = np.log2(spec)
 
-BATCH_SIZE = 795
-# spec = spec.reshape(n_data, spec_length, time_length, 3)
+BATCH_SIZE = 64
+
+
 data, label = shuffle(spec, label)
 X_train, X_test, y_train, y_test = train_test_split(data, label, test_size=0.2)
 
@@ -64,7 +66,8 @@ model.compile(
 
 model.fit(x=X_train, y=y_train,
           batch_size=BATCH_SIZE, epochs=200,
-          validation_data=(X_test, y_test))
+          validation_data=(X_test, y_test),
+          verbose=1)
 
 y_pred = np.argmax(model.predict(X_test), axis=1)
 confusion_mtx = confusion_matrix(y_test, y_pred)

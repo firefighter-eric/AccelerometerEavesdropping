@@ -13,6 +13,9 @@ class Util:
         self.SAMPLE_RATE = sample_rate
         self.SAMPLE_NUM = sample_num
 
+    def cut(self, wave):
+        return wave[:self.SAMPLE_NUM]
+
     def ft(self, wave):
         _, _, spec = stft(wave, nperseg=self.WINDOW_SIZE, padded=True)
         return np.abs(spec)
