@@ -9,33 +9,23 @@ from sklearn.metrics import confusion_matrix
 from tensorflow.keras import layers
 from tensorflow.keras import models
 
-WINDOW_SIZE = 64
+WINDOW_SIZE = 16
+OVERLAP = 8
 SAMPLE_RATE = 500
 SAMPLE_NUM = 300
-PAD_LENGTH = 11
+# PAD_LENGTH = 38
 
-util = Util(WINDOW_SIZE, SAMPLE_RATE, SAMPLE_NUM)
-wave_raw, label, time = read_acc_file('accelerometer_data')
+util = Util(WINDOW_SIZE, SAMPLE_RATE, SAMPLE_NUM, OVERLAP)
+raw, label, time = read_acc_file('accelerometer_data')
 
-spec_raw_x = list(map(util.ft, wave_raw[0]))
-spec_raw_y = list(map(util.ft, wave_raw[1]))
-spec_raw_z = list(map(util.ft, wave_raw[2]))
-
-spec_x = util.pad_and_merge(spec_raw_x, PAD_LENGTH)
-spec_y = util.pad_and_merge(spec_raw_y, PAD_LENGTH)
-spec_z = util.pad_and_merge(spec_raw_z, PAD_LENGTH)
-
-n_data, spec_length, time_length = spec_x.shape
-spec = np.empty(shape=(n_data, spec_length, time_length, 3))
-spec[:, :, :, 0] = spec_x
-spec[:, :, :, 1] = spec_y
-spec[:, :, :, 2] = spec_z
-spec = spec[:, 2:, :, :]
-n_data, spec_length, time_length, channel_num = spec.shape
+wave = util.cut(raw)
+spec = util.ft(wave)
 spec = np.log2(spec)
 
-BATCH_SIZE = 64
+spec = spec[:, 2:, 1:-1, :]
+n_data, spec_length, time_length, channel_num = spec.shape
 
+BATCH_SIZE = 64
 
 data, label = shuffle(spec, label)
 X_train, X_test, y_train, y_test = train_test_split(data, label, test_size=0.2)

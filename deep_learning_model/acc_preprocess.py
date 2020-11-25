@@ -1,42 +1,46 @@
 from util import *
 
-# WINDOW_SIZE = 32
-# SAMPLE_RATE = 500
-# SAMPLE_NUM = 400
-# PAD_LENGTH = 17
-
-WINDOW_SIZE = 64
+WINDOW_SIZE = 16
+OVERLAP = 8
 SAMPLE_RATE = 500
 SAMPLE_NUM = 300
-PAD_LENGTH = 11
+PAD_LENGTH = 38
 
-util = Util(WINDOW_SIZE, SAMPLE_RATE, SAMPLE_NUM)
-wave_raw, label, time = read_acc_file('accelerometer_data')
-plt.plot(time[0])
-plt.show()
+# WINDOW_SIZE = 32
+# OVERLAP = 30
+# SAMPLE_RATE = 500
+# SAMPLE_NUM = 300
+# PAD_LENGTH = 151
 
-wave_x = list(map(util.cut, wave_raw[0]))
-wave_y = list(map(util.cut, wave_raw[1]))
-wave_z = list(map(util.cut, wave_raw[2]))
+# WINDOW_SIZE = 64
+# OVERLAP = 60
+# SAMPLE_RATE = 500
+# SAMPLE_NUM = 300
+# PAD_LENGTH = 76
 
-util.show_wave(wave_x[0])
-util.show_wave(wave_y[0])
-util.show_wave(wave_z[0])
+# WINDOW_SIZE = 128
+# OVERLAP = 120
+# SAMPLE_RATE = 500
+# SAMPLE_NUM = 300
+# PAD_LENGTH = 38
 
-spec_raw_x = list(map(util.ft, wave_x))
-spec_raw_y = list(map(util.ft, wave_y))
-spec_raw_z = list(map(util.ft, wave_z))
+util = Util(WINDOW_SIZE, SAMPLE_RATE, SAMPLE_NUM, OVERLAP)
+raw, label, time = read_acc_file('accelerometer_data')
 
-util.length_hist(spec_raw_x)
+wave = util.cut(raw)
+# plt.plot(time[0])
+# plt.show()
 
-spec_x = util.pad_and_merge(spec_raw_x, PAD_LENGTH)
-spec_y = util.pad_and_merge(spec_raw_y, PAD_LENGTH)
-spec_z = util.pad_and_merge(spec_raw_z, PAD_LENGTH)
+util.show_wave(wave[0, :, 0])
+util.show_wave(wave[0, :, 1])
+util.show_wave(wave[0, :, 2])
 
-spec_x = np.log2(spec_x)
-spec_y = np.log2(spec_y)
-spec_z = np.log2(spec_z)
+spec = util.ft(wave)
 
-util.show_spec(spec_x[1])
-util.show_spec(spec_y[1])
-util.show_spec(spec_z[1])
+# util.length_hist(spec_raw_x)
+spec = np.log2(spec)
+
+util.show_spec(spec[0, :, :, 0])
+util.show_spec(spec[0, :, :, 1])
+util.show_spec(spec[0, :, :, 2])
+
