@@ -22,7 +22,8 @@ class Util:
         out = np.empty(shape=(batch_num, self.SAMPLE_NUM, channel))
         for c in range(channel):
             for b in range(batch_num):
-                out[b, :, c] = raw[c][b][:self.SAMPLE_NUM]
+                arr = raw[c][b][:self.SAMPLE_NUM]
+                out[b, :len(arr), c] = arr
         return out
 
     def ft(self, wave):
@@ -70,19 +71,21 @@ class Util:
 
 
 def read_radio_file(path):
+    # channel num: 1
     sub_paths = os.listdir(path)
-    data = []
+    data = [[]]
     label = []
     for sub_path in sub_paths:
         files = os.listdir(path + '/' + sub_path)
         for file in files:
             _, sig = wavfile.read(path + '/' + sub_path + '/' + file)
-            data.append(sig)
+            data[-1].append(sig)
             label.append(int(sub_path))
     return data, np.array(label)
 
 
 def read_acc_file(path):
+    # channel num: 3
     def line2array(line):
         return np.array(list(map(float, line.split(',')[:-1])))
 

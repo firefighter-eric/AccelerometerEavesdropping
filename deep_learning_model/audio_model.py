@@ -12,22 +12,22 @@ from tensorflow.keras import models
 WINDOW_SIZE = 256
 SAMPLE_RATE = 8000
 SAMPLE_NUM = 5120
-PADDING_NUM = 50
+OVERLAP = 128
 
-util = Util(WINDOW_SIZE, SAMPLE_RATE, SAMPLE_NUM)
-wave_raw, label = read_radio_file('recordings')
-spec_raw = list(map(util.ft, wave_raw))
-spec = util.pad_and_merge(spec_raw, PADDING_NUM)
+util = Util(WINDOW_SIZE, SAMPLE_RATE, SAMPLE_NUM, OVERLAP)
+raw, label = read_radio_file('recordings')
 
-n_data, spec_length, time_length = spec.shape
+wave = util.cut(raw)
+spec = util.ft(wave)
+
+n_data, spec_length, time_length, channel_num = spec.shape
 
 BATCH_SIZE = 32
-spec = spec.reshape(n_data, spec_length, time_length, 1)
 
 data, label = shuffle(spec, label)
 X_train, X_test, y_train, y_test = train_test_split(data, label, test_size=0.2)
 
-input_shape = (spec_length, time_length, 1)
+input_shape = (spec_length, time_length, channel_num)
 num_labels = len(set(label))
 
 model = models.Sequential([
