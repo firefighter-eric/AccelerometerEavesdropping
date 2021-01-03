@@ -25,10 +25,10 @@ spec = np.log2(spec)
 spec = spec[:, 2:, 1:-1, :]
 n_data, spec_length, time_length, channel_num = spec.shape
 
-BATCH_SIZE = 64
+BATCH_SIZE = 256
 
 data, label = shuffle(spec, label)
-X_train, X_test, y_train, y_test = train_test_split(data, label, test_size=0.2)
+X_train, X_test, y_train, y_test = train_test_split(data, label, test_size=0.1)
 
 input_shape = (spec_length, time_length, channel_num)
 num_labels = len(set(label))
@@ -48,15 +48,21 @@ model = models.Sequential([
 ])
 model.summary()
 
+
 model.compile(
     optimizer=tf.keras.optimizers.Adam(),
     loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-    metrics=['accuracy'],
+    metrics=['accuracy',
+             tf.keras.metrics.SparseTopKCategoricalAccuracy(3),
+             #  tf.keras.metrics.SparseTopKCategoricalAccuracy(5)
+             ],
 )
 
 model.fit(x=X_train, y=y_train,
           batch_size=BATCH_SIZE, epochs=200,
-          validation_data=(X_test, y_test),
+          validation_split=0.2,
+          #   validation_data=(X_test, y_test),
+          validation_freq=5,
           verbose=1)
 
 y_pred = np.argmax(model.predict(X_test), axis=1)
