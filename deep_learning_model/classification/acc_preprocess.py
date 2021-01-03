@@ -43,4 +43,3 @@ spec = np.log2(spec)
 util.show_spec(spec[0, :, :, 0])
 util.show_spec(spec[0, :, :, 1])
 util.show_spec(spec[0, :, :, 2])
-

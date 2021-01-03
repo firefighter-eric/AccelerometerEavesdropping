@@ -30,7 +30,8 @@ class Util:
         # wave: (batch_num, time_length, channel_num)
         # out: (batch_num, spec_num, time_num, channel_num)
         batch_num, time_length, channel_num = wave.shape
-        _, _, spec = stft(wave[0, :, 0], nperseg=self.WINDOW_SIZE, noverlap=self.OVERLAP, padded=False)
+        _, _, spec = stft(
+            wave[0, :, 0], nperseg=self.WINDOW_SIZE, noverlap=self.OVERLAP, padded=False)
         spec_num, time_num = spec.shape
 
         out = np.empty(shape=(batch_num, spec_num, time_num, channel_num))
